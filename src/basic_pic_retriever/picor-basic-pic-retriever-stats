@@ -1,0 +1,50 @@
+#!/bin/bash
+set -e
+
+function error {
+	echo "Error !"
+	echo "${result}"
+	exit 1
+}
+trap error ERR
+
+results_dir="stats_results"
+mkdir -p ${results_dir}
+stats_resources_path=$(pkg-config --variable=pkgdatadir picor)/stats_resources
+result=$(picor-basic-pic-retriever $1 $2 $3 2>&1 > ${results_dir}/plot.dat)
+echo "${result}"
+
+case $1 in
+	xcorr)
+		gnuplot ${stats_resources_path}/xcorr/plot.cmd
+		spent_time=$(echo $result | cut -d' ' -f 11)
+		echo "
+		var date=\"$(date +%s)\";
+		var ref_image=\"$3\";
+		var better_image=\"$2/$(echo $result | cut -d' ' -f 3)\";
+		var better_coeff=$(echo $result | cut -d' ' -f 6);
+		var spent_time=${spent_time%s};
+		var images_count=$(echo $result | cut -d' ' -f 8);
+		var images_list=[\"$(find $2 -type f | sort | sed ':a;N;$!ba;s/\n/", "/g')\"];
+		" > ${results_dir}/infos.js
+		cp ${stats_resources_path}/xcorr/view.html ${results_dir}
+		;;
+	avghash)
+		gnuplot ${stats_resources_path}/avghash/plot.cmd
+		spent_time=$(echo $result | cut -d' ' -f 15)
+		dist_spent_time=$(echo $result | cut -d' ' -f 19)
+		echo "
+		var date=\"$(date +%s)\";
+		var ref_image=\"$3\";
+		var ref_image_hash=\"$(echo $result | cut -d' ' -f 4)\";
+		var better_image=\"$2/$(echo $result | cut -d' ' -f 7)\";
+		var better_coeff=$(echo $result | cut -d' ' -f 10);
+		var spent_time=${spent_time%s};
+		var dist_spent_time=${dist_spent_time%s};
+		var images_count=$(echo $result | cut -d' ' -f 12);
+		var images_list=[\"$(find $2 -type f | sort | sed ':a;N;$!ba;s/\n/", "/g')\"];
+		var images_hash=[\"$(cat ${results_dir}/plot.dat|cut -d' ' -f 4|sed ':a;N;$!ba;s/\n/", "/g')\"];
+		" > ${results_dir}/infos.js
+		cp ${stats_resources_path}/avghash/view.html ${results_dir}
+		;;
+esac

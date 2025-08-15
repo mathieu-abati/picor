@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+datadir=@datadir@
+pkgdatadir=${datadir}/picor
+
+Name: picor
+Description: Pictures correlation tools
+Version: @VERSION@
+Libs: -L${libdir}
+Cflags: -I${includedir}
