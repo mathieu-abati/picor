@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="title" content="Results" />
+		<style TYPE="text/css">
+			body {
+				text-align: center;
+			}
+			#big_images {
+				display: flex;
+				justify-content: space-between;
+				width: 100%;
+			}
+			#big_images .image_area {
+				box-sizing: border-box;
+				width: calc((100% - (2 * 4px)) / 2);
+				margin: 2px;
+				padding: 0;
+				flex: 1 1 0;
+				object-fit: cover;
+				display: block;
+			}
+			#ref_image {
+				margin: 2px;
+			}
+			#better_image {
+				border: 2px solid red;
+			}
+			.shifted #better_image {
+				border-color: blue;
+			}
+			#carousel {
+				display: flex;
+				justify-content: space-between;
+				width: 100%;
+			}
+			#carousel img {
+				box-sizing: border-box;
+				width: calc((100% - (9 * 4px)) / 9);
+				margin: 2px;
+				padding: 0;
+				flex: 1 1 0;
+				object-fit: cover;
+				display: block;
+				background-color: black;
+			}
+			#carousel img.empty {
+				content: "";
+				background-color: black;
+			}
+			#carousel #stream_image_4 {
+				margin: 0;
+				border: 2px solid red;
+			}
+			.shifted #carousel #stream_image_4 {
+				border-color: blue;
+			}
+			#hashes {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				width: 100%;
+			}
+			#hashes img {
+				box-sizing: border-box;
+				width: calc((100% - (2 * 4px)) / 2);
+				margin: 2px;
+				padding: 0;
+				flex: 1 1 0;
+				object-fit: cover;
+				display: block;
+			}
+			#ref_image_hash, #image_hash {
+				word-wrap: break-word;
+				font-size: 1.8em;
+				font-family: monospace;
+				border: 1px solid black;
+				padding: 0 1em;
+			}
+			#ref_image_hash .title, #image_hash .title {
+				text-decoration: underline;
+			}
+			#ref_image_hash {
+				float: right;
+				margin-right: 1em;
+			}
+			#image_hash {
+				float: left;
+				margin-left: 1em;
+			}
+			.dist_1 { background-color: #FFFF00; }
+			.dist_2 { background-color: #FFFF00; }
+			.dist_3 { background-color: #FFFF00; }
+			.dist_4 { background-color: #FFBF00; }
+			.dist_5 { background-color: #FFBF00; }
+			.dist_6 { background-color: #FFBF00; }
+			.dist_7 { background-color: #FF7F00; }
+			.dist_8 { background-color: #FF7F00; }
+			.dist_9 { background-color: #FF7F00; }
+			.dist_10 { background-color: #FF4000; color: white; }
+			.dist_11 { background-color: #FF4000; color: white; }
+			.dist_12 { background-color: #FF4000; color: white; }
+			.dist_13 { background-color: #FF0000; color: white; }
+			.dist_14 { background-color: #FF0000; color: white; }
+			.dist_15 { background-color: #FF0000; color: white; }
+			.better {
+				color: red;
+			}
+			.result {
+				color: blue;
+			}
+			#plot img {
+				width: 80%;
+				margin: 0 10%;
+				padding: 0;
+			}
+			.avghash .info_xcorr,
+			.avghash #plot_xcorr,
+			.avghash #plot_xcorr_zoom {
+				display: none;
+			}
+			.xcorr .info_avghash,
+			.xcorr #image_hash,
+			.xcorr #hashes,
+			.xcorr #plot_avghash,
+			.xcorr #plot_avghash_zoom {
+				display: none;
+			}
+		</style>
+<script type="text/javascript" src="infos.js"></script>
+<script type="text/javascript">
+function update_carousel()
+{
+	for (let i = 0; i < 9; i++) {
+		let current = cur_image_index - 4 + i;
+		if (current < 0 || images_list[current] === undefined) {
+			document.getElementById("stream_image_" + i).src = "";
+			document.getElementById("stream_image_" + i).classList.add("empty");
+		} else {
+			document.getElementById("stream_image_" + i).src =
+				images_list[current];
+			document.getElementById("images_view").classList.remove("empty");
+		}
+	}
+}
+
+function update_images_hashs()
+{
+	hash = images_hash[cur_image_index];
+	width = Math.sqrt(hash.length);
+
+	ref_image_hash_txt = "<span class=\"title\">Ref. hash</span>";
+	hash_txt = "<span class=\"title\">Hash</span>";
+	hash_size = hash.length;
+	for (var i = 0; i < hash_size; i++) {
+		if (!(i % width)) {
+			ref_image_hash_txt += "<br />";
+			hash_txt += "<br />";
+		}
+		if (!(i % 2)) {
+			ref_image_hash_txt += " ";
+			hash_txt += " ";
+		}
+		dist = Math.abs(parseInt(ref_image_hash.charAt(i), 16) - parseInt(hash.charAt(i), 16));
+		dist_class = "dist_"+dist;
+		if (ref_image_hash.charAt(i) != hash.charAt(i)) {
+			ref_image_hash_txt += "<span class=\""+dist_class+"\">"+ref_image_hash.charAt(i)+"</span>";
+			hash_txt += "<span class=\""+dist_class+"\">"+hash.charAt(i)+"</span>";
+		} else {
+			ref_image_hash_txt += ref_image_hash.charAt(i);
+			hash_txt += hash.charAt(i);
+		}
+	}
+
+	document.getElementById("ref_image_hash").innerHTML = ref_image_hash_txt;
+	document.getElementById("image_hash").innerHTML = hash_txt;
+}
+
+function handle_keypress(e)
+{
+	var unicode=e.keyCode? e.keyCode : e.charCode;
+	switch (unicode) {
+		case 8:
+			cur_image_index = better_image_index;
+			break;
+		case 37:
+			if (typeof images_list[cur_image_index-1] != "undefined")
+				cur_image_index--;
+			break;
+		case 39:
+			if (typeof images_list[cur_image_index+1] != "undefined")
+				cur_image_index++;
+			break;
+	}
+	document.getElementById("better_image").src =
+		images_list[cur_image_index];
+	if (cur_image_index != better_image_index) {
+		document.getElementById("images_view").classList.add("shifted");
+	} else {
+		document.getElementById("images_view").classList.remove("shifted");
+	}
+	update_carousel();
+	if (algo == "avghash" && update_image_hashs_timeout != null) {
+		window.clearTimeout(update_image_hashs_timeout);
+		update_image_hashs_timeout = window.setTimeout(function(){update_images_hashs()}, 100);
+	}
+	var relative_id = cur_image_index - better_image_index;
+	if (relative_id < 0)
+		document.getElementById("relative_id").innerHTML = relative_id;
+	else if (relative_id > 0)
+		document.getElementById("relative_id").innerHTML = "+"+relative_id;
+	else
+		document.getElementById("relative_id").innerHTML = "";
+}
+
+function disp_ref_image_size()
+{
+	document.getElementById("ref_image_size").innerHTML =
+		"(" + document.getElementById("ref_image").naturalWidth + "x"
+		+ document.getElementById("ref_image").naturalHeight + ")";
+}
+
+function disp_better_image_size()
+{
+	document.getElementById("better_image_size").innerHTML =
+		"(" + document.getElementById("better_image").naturalWidth + "x"
+		+ document.getElementById("better_image").naturalHeight + ")";
+}
+
+var better_image_index = images_list.indexOf(better_image);
+var cur_image_index = better_image_index;
+var update_image_hashs_timeout = null;
+</script>
+	</head>
+	<body>
+		<h1>
+			Results for
+			<span class="info_xcorr">
+				cross-correlation
+			</span>
+			<span class="info_avghash">
+				average hash
+			</span>
+			on <span id="images_count"></span> images
+			(<span id="date"></span>)
+		</h1>
+		<p>
+			<span class="info_xcorr">
+				Better r=<span id="better_r"></span>
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				Cross-correlation done in <span id="xcorr_spent_time"></span>s
+			</span>
+			<span class="info_avghash">
+				Better distance=<span id="better_distance"></span>
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				Hashes computation done in <span id="avghash_spent_time"></span>s,
+				hashes comparison done in <span id="dist_spent_time"></span>s
+			</span>
+		</p>
+		<div id="images_view">
+			<div id="big_images">
+				<div class="image_area" id="ref_image_area">
+					<strong>Reference image <span id="ref_image_size"></span></strong>
+					<p>&nbsp;</p>
+					<img id="ref_image" alt="reference" title="Reference image"
+						onload="disp_ref_image_size()" style="width: 100%" />
+				</div>
+				<div class="image_area" id="better_image_area">
+					<strong>Better match <span id="better_image_size"></span > <span id="relative_id"></span></strong>
+					<p>Press &#8678; or &#8680; to navigate in collection, and backspace to return to better match</p>
+					<img id="better_image" alt="match" title="Better match"
+						onload="disp_better_image_size()" style="width: 100%" />
+				</div>
+			</div>
+			<div id="carousel">
+				<img id="stream_image_0" />
+				<img id="stream_image_1" />
+				<img id="stream_image_2" />
+				<img id="stream_image_3" />
+				<img id="stream_image_4" />
+				<img id="stream_image_5" />
+				<img id="stream_image_6" />
+				<img id="stream_image_7" />
+				<img id="stream_image_8" />
+			</div>
+		</div>
+		<br />
+		<div id="hashes">
+			<div id="ref_image_hash"></div>
+			<div id="image_hash"></div>
+		</div>
+		<h2>Plotted results</h2>
+		<div id="plot">
+			<span class="better">Better match</span>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			<span class="result">Image result</span>
+			<span class="info_xcorr">(higher is better)</span>
+			<span class="info_avghash">(lower is better)</span>
+			<br />
+			<img id="plot_xcorr" src="plot.png" alt="xcorr" title="Cross-correlation" />
+			<img id="plot_avghash" src="plot.png" alt="avghash" title="Average hash distance" />
+			<br />
+			<img id="plot_xcorr_zoom" src="plot_zoom.png" alt="xcorr_zoom" title="Cross-correlation: zoom" />
+			<img id="plot_avghash_zoom" src="plot_zoom.png" alt="avghash_zoom" title="Average hash distance: zoom" />
+		</div>
+<script type="text/javascript">
+document.body.classList.add(algo);
+document.getElementById("ref_image").src = ref_image;
+document.getElementById("better_image").src = better_image;
+if (algo == "avghash") {
+	update_images_hashs();
+	document.getElementById("better_distance").innerHTML = better_coeff;
+	document.getElementById("dist_spent_time").innerHTML = dist_spent_time;
+	document.getElementById("avghash_spent_time").innerHTML = spent_time;
+} else if (algo == "xcorr") {
+	document.getElementById("better_r").innerHTML = better_coeff;
+	document.getElementById("xcorr_spent_time").innerHTML = spent_time;
+}
+document.getElementById("images_count").innerHTML = images_count;
+let date_obj = new Date(date * 1000);
+let local_date = date_obj.toLocaleString();
+document.getElementById("date").innerHTML = local_date;
+document.body.addEventListener("keyup", handle_keypress);
+</script>
+	</body>
+</html>
