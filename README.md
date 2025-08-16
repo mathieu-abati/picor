@@ -8,6 +8,30 @@ For example, given an image extracted from a video, we can find this exact
 image in the same video but using different encoding and quality (resolution,
 colorimetry, codec, framerate...).
 
+## Result example
+
+This is an example of output when using `picor-basic-pic-retriever-stats`.
+It has been run 551 images on an Intel(R) Core(TM) i7-7500U CPU @ 2.70GHz 2017
+laptop.
+
+![Result example](result_example.webp)
+
+Below, images transformation time is not taken inout account.
+
+### Average hash
+
+Hashes computation took 0.001447s, hashes comparison 0.000042s.
+
+![Cross-correlation example plots](result_example_avghash_plot.webp)
+
+![Hash comparison example](results_example_avghash_compare.png)
+
+### Cross-correlation
+
+Cross-correlation took 0.001465s.
+
+![Cross-correlation example plots](result_example_xcorr_plot.webp)
+
 ## Installation
 
 First install the dependencies:
