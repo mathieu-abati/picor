@@ -5,8 +5,8 @@
 
 #include <avghash.h>
 
-double avghash_spent_time = 0.0f;
-double avghash_dist_spent_time = 0.0f;
+double avghash_spent_time = 0.0;
+double avghash_dist_spent_time = 0.0;
 
 void avghash(const double *s, int n, unsigned char *h)
 {
@@ -29,8 +29,8 @@ void avghash(const double *s, int n, unsigned char *h)
 		h[i / 8] |= (s[i] >= m) << (i % 8);
 
 	gettimeofday(&t1, NULL);
-	avghash_spent_time += (t1.tv_sec - t0.tv_sec)
-		* 1000000 + t1.tv_usec - t0.tv_usec;
+	avghash_spent_time += ((t1.tv_sec - t0.tv_sec) * 1000000L
+			+ t1.tv_usec - t0.tv_usec) / 1e6;
 }
 
 int dist_avghash(int n, const unsigned char *h1, const unsigned char *h2)
@@ -55,8 +55,8 @@ int dist_avghash(int n, const unsigned char *h1, const unsigned char *h2)
 	}
 
 	gettimeofday(&t1, NULL);
-	avghash_dist_spent_time += (t1.tv_sec - t0.tv_sec)
-		* 1000000 + t1.tv_usec - t0.tv_usec;
+	avghash_dist_spent_time += ((t1.tv_sec - t0.tv_sec) * 1000000L
+			+ t1.tv_usec - t0.tv_usec) / 1e6;
 	return dist;
 }
 

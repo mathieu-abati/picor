@@ -4,7 +4,7 @@
 
 #include <xcorr.h>
 
-double xcorr_spent_time = 0.0f;
+double xcorr_spent_time = 0.0;
 
 double xcorr(const double *x, const double *y, int n)
 {
@@ -38,7 +38,7 @@ double xcorr(const double *x, const double *y, int n)
 	r = sxy / sqrt(sx * sy);
 
 	gettimeofday(&t1, NULL);
-	xcorr_spent_time += (t1.tv_sec - t0.tv_sec)
-		* 1000000 + t1.tv_usec - t0.tv_usec;
+	xcorr_spent_time += ((t1.tv_sec - t0.tv_sec) * 1000000L
+			+ t1.tv_usec - t0.tv_usec) / 1e6;
 	return r;
 }

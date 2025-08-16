@@ -251,9 +251,9 @@ int main(int argc, char **argv)
 			ret = EXIT_FAILURE;
 			goto end;
 		}
-		fprintf(stderr, "Processed %d images in %fs\n"
-				, images_count,
-				xcorr_spent_time / CLOCKS_PER_SEC);
+		fprintf(stderr, "Processed %d images in %fs\n",
+				images_count,
+				xcorr_spent_time);
 	} else if (!strcmp(argv[1], "avghash")) {
 		if ((images_count = do_avghash(argv, series_ref)) < 0) {
 			ret = EXIT_FAILURE;
@@ -261,8 +261,8 @@ int main(int argc, char **argv)
 		}
 		fprintf(stderr, "Processed %d images in %fs (hashes computation) +  %fs (hashes comparison)\n",
 				images_count,
-				avghash_spent_time / CLOCKS_PER_SEC,
-				avghash_dist_spent_time / CLOCKS_PER_SEC);
+				avghash_spent_time,
+				avghash_dist_spent_time);
 	} else {
 		fprintf(stderr, "Unknown method %s\n", argv[1]);
 		usage(argv[0]);
