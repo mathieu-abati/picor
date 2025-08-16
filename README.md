@@ -24,7 +24,7 @@ Hashes computation took 0.001447s, hashes comparison 0.000042s.
 
 ![Cross-correlation example plots](result_example_avghash_plot.webp)
 
-![Hash comparison example](results_example_avghash_compare.png)
+![Hash comparison example](results_example_avghash_compare.webp)
 
 ### Cross-correlation
 
