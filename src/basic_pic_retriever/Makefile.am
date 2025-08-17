@@ -10,3 +10,7 @@ pkgdatadir = $(datadir)/picor
 install-data-local:
 	mkdir -p $(DESTDIR)$(pkgdatadir)/
 	cp -r $(top_srcdir)/src/basic_pic_retriever/stats_resources $(DESTDIR)$(pkgdatadir)/
+
+EXTRA_DIST = \
+	picor-basic-pic-retriever-stats \
+	stats_resources

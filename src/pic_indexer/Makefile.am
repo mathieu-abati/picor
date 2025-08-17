@@ -1,3 +1,5 @@
+noinst_HEADERS = pic_indexer.h
+
 bin_PROGRAMS = picor-index-folder picor-retrieve-pic
 picor_index_folder_SOURCES = index_folder.c
 picor_index_folder_CFLAGS = -I$(top_srcdir)/include ${MAGICKCORE_CFLAGS}
